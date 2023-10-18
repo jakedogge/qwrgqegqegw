@@ -1,0 +1,1572 @@
+//@version=1
+study("[example] Layer Settings")
+
+header('Basics')
+const test = input("My Number", 1)
+const testBool = input("Boolean", true)
+const testColor = input("My Color", color.green)
+
+header('Advanced stuff','Something here and there')
+const testSlider = input("A Slider", 1, minval=0, maxval=100, step=5)
+const testOption = input("My Option", 'b', options=['a','b','c'])
+
+
+var clr = #0FF
+
+switch(testOption){
+  case 'a':
+     clr= #FF0
+     break
+  case 'b':
+     clr= #F00
+     break
+}
+
+
+plot(open, color=testColor, linewidth=1)
+plot(close+100, color=clr, linewidth=10)
+
+//@version=1
+study("[example] Layer Settings")
+
+header('Basics')
+const test = input("My Number", 1)
+const testBool = input("Boolean", true)
+const testColor = input("My Color", color.green)
+
+header('Advanced stuff','Something here and there')
+const testSlider = input("A Slider", 1, minval=0, maxval=100, step=5)
+const testOption = input("My Option", 'b', options=['a','b','c'])
+
+
+var clr = #0FF
+
+switch(testOption){
+  case 'a':
+     clr= #FF0
+     break
+  case 'b':
+     clr= #F00
+     break
+}
+
+
+plot(open, color=testColor, linewidth=1)
+plot(close+100, color=clr, linewidth=10)
+
+//@version=1
+study("Bollinger Bands", overlay=true) // by Xerios
+
+const basis_in= input("Basis",24)
+const dev_in = input("Dev",24)
+
+var basis = sma(open,basis_in)
+var dev = stdev(open,dev_in)
+
+plots[10] upper, lower
+
+for (i=1;i<=10;i++) append(upper,basis + dev * i, lighten(#FFAA00,i*6))
+for (i=-1;i>=-10;i--) append(lower,basis + dev * i, darken(#AAFFFF,i*-15))
+
+plot(upper)
+plot(lower)
+
+//@version=1
+study("RSI Bands - Support & Resistance", overlay=true) // pretty good for trading Bart paterns ~ said ViK
+const rsi_OB = input("Overbought level",75)
+const rsi_OS = input("Oversold level",25)
+const rsi_len = input("RSI Length",14)
+seq rsi_src = close // input(close, title="RSI Source")
+const ma_type = input("MA type: 1-rma, 2-ema",2)
+
+// func crossover(a,b) => a[1]<b[1] and a>=b
+// func crossundr(a,b) => a[1]>b[1] and a<=b
+
+seq ma_len = 2*rsi_len-1
+seq auc = max(rsi_src-rsi_src[1], 0)
+seq adc = max(rsi_src[1]-rsi_src, 0)
+const ema_auc = ema(auc,ma_len) // using ema instead of rma()
+const ema_adc = ema(adc,ma_len)
+const rma_auc = rma(auc,ma_len)
+const rma_adc = rma(adc,ma_len)
+const auc_ma = ma_type==1 ? ema_auc : rma_auc
+const adc_ma = ma_type==1 ? ema_adc : rma_adc
+const x1 = (rsi_len-1)*(adc_ma*rsi_OB/(100-rsi_OB)-auc_ma)
+const x2 = (rsi_len-1)*(adc_ma*rsi_OS/(100-rsi_OS)-auc_ma)
+seq ub = x1>=0 ? rsi_src+x1 : rsi_src+x1*(100-rsi_OB)/rsi_OB
+seq lb = x2>=0 ? rsi_src+x2 : rsi_src+x2*(100-rsi_OS)/rsi_OS
+const ml = (ub+lb)/2
+plot(ub, title="Resistance", color=color.maroon, linewidth=2)
+plot(ml, title="Midline",    color=darken(color.gray, 30))
+plot(lb, title="Support",    color=color.green, linewidth=2)
+
+const rsi_long = crossover(rsi_src,ub) // Long  condition
+const rsi_shrt = crossunder(rsi_src,lb) // Short condition
+
+//@version=1
+study("RSI Bands - Support & Resistance", overlay=true) // pretty good for trading Bart paterns ~ said ViK
+const rsi_OB = input("Overbought level",75)
+const rsi_OS = input("Oversold level",25)
+const rsi_len = input("RSI Length",14)
+seq rsi_src = close // input(close, title="RSI Source")
+const ma_type = input("MA type: 1-rma, 2-ema",2)
+
+// func crossover(a,b) => a[1]<b[1] and a>=b
+// func crossundr(a,b) => a[1]>b[1] and a<=b
+
+seq ma_len = 2*rsi_len-1
+seq auc = max(rsi_src-rsi_src[1], 0)
+seq adc = max(rsi_src[1]-rsi_src, 0)
+const ema_auc = ema(auc,ma_len) // using ema instead of rma()
+const ema_adc = ema(adc,ma_len)
+const rma_auc = rma(auc,ma_len)
+const rma_adc = rma(adc,ma_len)
+const auc_ma = ma_type==1 ? ema_auc : rma_auc
+const adc_ma = ma_type==1 ? ema_adc : rma_adc
+const x1 = (rsi_len-1)*(adc_ma*rsi_OB/(100-rsi_OB)-auc_ma)
+const x2 = (rsi_len-1)*(adc_ma*rsi_OS/(100-rsi_OS)-auc_ma)
+seq ub = x1>=0 ? rsi_src+x1 : rsi_src+x1*(100-rsi_OB)/rsi_OB
+seq lb = x2>=0 ? rsi_src+x2 : rsi_src+x2*(100-rsi_OS)/rsi_OS
+const ml = (ub+lb)/2
+plot(ub, title="Resistance", color=color.maroon, linewidth=2)
+plot(ml, title="Midline",    color=darken(color.gray, 30))
+plot(lb, title="Support",    color=color.green, linewidth=2)
+
+const rsi_long = crossover(rsi_src,ub) // Long  condition
+const rsi_shrt = crossunder(rsi_src,lb) // Short condition
+
+//@version=1
+study("Volume Weighted Average Price (VWAP)", overlay=true) // by ViK
+
+const d_vwap   = input("Show VWAP", false) 
+const d_vwap_b = input("Show VWAP Bands", false) 
+const d_vwap2  = input("Show period based VWAP", true) 
+
+seq   totVol = vbuy+vsell 
+const typPrc = hlc3 // (high+low+close)/3
+seq   tp_Vol = typPrc*totVol
+
+// VWAP
+const c_tp_Vol = cum(tp_Vol)
+const c_totVol = cum(totVol)
+const vwap = c_tp_Vol/c_totVol
+plot(d_vwap?vwap:na,color=color.red,title="VWAP")
+
+// VWAP - period based
+const c_period = input("VWAP - period based, bars",300)
+const c_tp_Vol_p = sum(tp_Vol, c_period)
+const c_totVol_p = sum(totVol, c_period)
+const vwap_p = c_tp_Vol_p/c_totVol_p
+plot(d_vwap2?vwap_p:na,color=color.magenta,title="VWAP - period based")
+
+// VWAP - Bands
+const b = vwap // inputs:
+const d = input("VWAP Bands - distance", 1)
+const m = input("VWAP Bands - multiplier", 2)
+const u0 = b+d*b/100
+const l0 = b-d*b/100
+plot(d_vwap_b? u0 : na,color=color.cyan, title="VWAP Bands: upper 0")
+plot(d_vwap_b? l0 : na,color=color.cyan, title="VWAP Bands: lower 0")
+const u1 = b+(d*b/100*m)
+const l1 = b-(d*b/100*m)
+plot(d_vwap_b? u1 : na,color=color.cyan, title="VWAP Bands: upper 1")
+plot(d_vwap_b? l1 : na,color=color.cyan, title="VWAP Bands: lower 1")
+
+
+study("[Function] Early/Delayed Signal (before the bar close or after)") // by ViK
+// Usually, signals are considered to be valid at the bar close.
+// Some traders may prefer to have a chance to enter earlier.
+// It is of great risk, and the Strategy Tester is unable to provide consistent backtest data with regards to this.
+
+// But for those who want to integrate such a choice in their strategies, here is the Early Signal Function.
+// The function takes 2 parameters
+// - the signal that is considered valid at the bar close, of type bool
+// - the early time value in seconds, the time before the signal is valid, of type int
+// it returns a value of type bool - a New Entry Signal
+
+// The resulting conditions used for alerts would be:
+// - newLongCondition = earlySignal_f(myLongSignal, earlyTime)
+// - newShrtCondition = earlySignal_f(myShrtSignal, earlyTime)
+
+// Note: the signals can also be delayed - use a negative value for early time
+
+
+
+// Early Signal Function //----------------------------------------------------------------------------------------------------
+func earlySignal_f(mySignal, earlyTime) {
+    earlySignal = mySignal and (time_close-timenow-earlyTime*1000)/1000==0
+    return earlySignal
+}
+// ----------------------------------------------------------------------------------------------------------------------------
+
+myLong = true // test
+myShrt = true // test
+
+eTime = input(60, title="Seconds before the signal is considered valid: ")
+
+newLongCondition = earlySignal_f(myLong, eTime)
+newShrtCondition = earlySignal_f(myShrt, eTime)
+
+plot(newLongCondition?close:na, color=green)
+plot(newShrtCondition?close:na, color=red)
+
+//@version=1
+study("[example] Bid/Ask Sum")
+plot(bid_sum(),color=#AF0)
+plot(ask_sum(),color=#F30)
+
+
+
+//@version=1
+study("[Basic] EMA", overlay=true)
+
+var len = input("Len", 15)
+
+func lite_ema(src:seq, time_period) {
+    var alpha = 2 / (time_period + 1)
+    seq ema = 0.0
+    ema = alpha * src + (1 - alpha) * nz(ema[1])
+    return ema
+}
+
+seq xema = lite_ema(close, len)
+plot(xema, color=color.lime, linewidth=4)
+
+//@version=1
+study("[example] Functions")
+seq src = open
+var val = 10
+
+func test(x:seq, y:var) => x + y
+  
+plot(test(src,val),color=#AF0)
+
+
+//@version=1
+study("MKAST Average Volume Delta")
+
+
+seq delta = vbuy-vsell
+seq cumDelta = sma(delta,20)
+
+
+const p1 = plot(cumDelta, width = 4)
+const p2 = plot( 0 , color = #ffffff)
+
+fill(p2,p1, color = cumDelta < 0 ? color.red : color.green)
+
+
+
+
+// Histogram Colors
+const col_pos = input("Color - Positive Delta:", #64FFDA)
+const col_neg = input("Color - Negative Delta:", #F44336)
+
+var vd = (vbuy-vsell)
+histogram(vd, color = vd<0 ? col_neg : col_pos)
+
+
+
+
+//@version=1
+study("VFI")
+
+seq volume = vbuy+vsell
+
+header("Inputs", "Coef of 0.2 if recommended for daily timeframes; 0.1 for intra-day")
+const len = input("VFI length", 130)
+const coef = input("Coef", 0.1)
+const vcoef = input("Max. volume cutoff", 0.2)
+const signal_len = input("Signal Length", 5)
+const smoothVFI = input("Smooth VFI?", false)
+const show_histo = input("Show histogram?", false)
+header("Colors")
+const colup = input("", #2196F3), coldown = input("", #FF5252)
+
+func ma(x:seq,y) => smoothVFI ? sma(x,y) : x
+
+seq typical = hlc3
+seq inter = log(typical) - log(typical[1])
+const vinter = stdev(inter, 30)
+const cutoff = coef*vinter*close
+seq _vave = sma(volume, len)
+const vave = _vave[1]
+const vmax = vave*vcoef
+const vc = min(volume, vmax)
+const mf = typical - typical[1]
+seq vcp = iff(mf>cutoff, vc, iff(mf<-cutoff, -vc, 0))
+
+seq _vfi = sum(vcp, len)/vave
+seq vfi = ma(_vfi, 3)
+seq vfima=ema(vfi, signal_len)
+const d = vfi-vfima
+
+// Plots
+histogram(show_histo?d:na, color=color.gray, transp=50, showprice=false)
+const col_vfi = iff(vfi==0, color.white, iff(vfi>0, colup, coldown))
+plot(vfi, color=col_vfi, linewidth=1)
+fill(vfi, 0, transp=80)
+plot(vfima, linewidth=1)
+
+
+//@version=1
+study("Volume vs Direction")
+
+// Inputs
+header("Inputs")
+const len = input("Length", 28)
+const ma_len = input("MA length", 14)
+const base = input("Show base line?", false)
+const show_signals = input("Show background highlights?", true)
+header("Colors")
+const col_pos = input("Up", #0080ff), col_neg = input("Down", #ff0000)
+
+// Logic
+const vol = vbuy+vsell
+// Sum total based on candle direction
+seq vd = close>open?vbuy:-vsell
+seq cvd = sum(vd,len)
+seq std = stdev(cvd)
+// Sum total based on buy/sell dominance
+seq rvd = vbuy>vsell?vbuy:-vsell
+seq rcvd = sum(rvd,trunc(len/2))
+const rstd = stdev(rcvd,len)
+
+// Calc. MA's, StDev, and overbought/sold
+seq ma1 = ema(rcvd,ma_len)
+seq std_up = rcvd+2*rstd, std_down = rcvd-2*rstd
+
+// Plots
+const col_cvd = rcvd>ma1 ? col_pos : col_neg
+const col_up = std_up>ma1 ? col_pos : col_neg
+const col_down = std_down>ma1 ? col_pos : col_neg
+
+histogram(rcvd-cvd, transp=50)
+fill(rcvd,ma1, color=col_cvd, transp=60)
+fill(std_up,ma1[5], color=col_up, transp=75, offset=1)
+fill(std_down,ma1[5], color=col_down, transp=75, offset=1)
+plot(base?0:na,color=#888888)
+plot(cvd, showprice=false)
+plot(rcvd, color=rcvd>ma1?#0080ff:#ff0000, showprice=false)
+
+
+//@version=1
+study("Liquidation Levels",overlay=true)
+const level1 = input("l1",0.0)
+const level2 = input("l2",0.01)
+plots[60] levelsB
+plots[60] levelsB10
+plots[60] levelsB20
+plots[60] levelsS10
+plots[60] levelsS20
+seq delta = (vbuy-vsell)*(vbuy+vsell)
+seq posdelta = delta > 0 ? delta : 0
+seq negdelta = delta < 0 ? delta : 0
+const fac = input("x stdev",1.618)
+
+
+for (i=0;i<60;i++) {
+
+    if(posdelta > fac*stdev(posdelta,500))
+    {
+     append(levelsB10, high*(1-level2), color.green)  
+     } 
+   if(posdelta > fac*stdev(posdelta,500))
+   {
+     append(levelsB20, high*(1-level1), color.green)  
+     } 
+
+}
+for (i=0;i<60;i++) {
+
+   if(negdelta < fac*-stdev(negdelta))
+   {
+     append(levelsS10, low*(1+level2), color.red)  
+    }
+   if(negdelta < fac*-stdev(negdelta))
+   {
+     append(levelsS20, low*(1+level1), color.red)  
+    }
+
+}
+
+
+plot(levelsB10,linewidth=1)
+plot(levelsB20,linewidth=1)
+plot(levelsS10,linewidth=1)
+plot(levelsS20,linewidth=1)
+
+
+
+//@version=1
+study("[yogi] Analysis Paralysis", overlay=true)
+
+var candleSize = input("Candle size, % of price", 15)
+var bodySize = input("Body height, % of price", 1)
+
+var midPrice = (max(high[0], high[1]) + min(low[0], low[1])) / 2 
+
+var candleIsRightSize = max(abs(high[1] - low[0]), abs(high[0] - low[1])) > midPrice * candleSize / 100  
+var candleBodyRightSize = abs(open[1] - close[0]) < midPrice * bodySize / 100
+
+var isSignal = candleIsRightSize && candleBodyRightSize
+
+histogram(isSignal ? 100000 : 0, color = color.yellow, transp=75)
+
+
+//@version=1
+study("RSI of Open Buyers vs Open Sellers")
+const length = input("rsi length",10)
+seq openBuyers = oi_close>oi_open?vbuy:-vsell   
+seq openSellers = oi_close>oi_open?vsell:-vbuy
+seq cb = cum(openBuyers)
+seq cs = cum(openSellers)
+seq ratio = cb-cs
+func rsi(x:seq, y) {
+    seq uc = max(x - x[1], 0) // upward change
+    seq dc = max(x[1] - x, 0) // downward change
+    seq rs = rma(uc, y) / rma(dc, y)
+    seq res = 100 - 100 / (1 + rs)
+    return res
+  }
+seq relRatio = rsi(ratio,length)
+plot(relRatio,color=relRatio<20?color.green:relRatio>80?color.red:color.white,linewidth=3)
+fill(80,100,transp=90,color=color.red)
+fill(20,0,transp=90,color=color.green)
+
+//@version=1
+study("rolling CVD", overlay=false)
+var ticks = input("Rolling period", 12)
+
+var x = 0
+for( i = 0; i < ticks; i++) { 
+ x = x + vbuy[i] - vsell[i]
+} 
+
+histogram(x, color = x < 0 ? color.red : color.green, title="Volume", autoscale=true)
+plot(x, color=#FFF, autoscale=true)
+
+
+//@version=1
+study("QQE MOD")
+
+//-- Input
+header("QQE 1")
+const rsi_len = input("RSI Length", 6)
+const SF = input("Slow Factor", 5)
+const QQE = input("Fast QQE Factor", 3)
+const threshold = input("Threshold", 3)
+
+header("QQE 2")
+const rsi_len2 = input("RSI Length", 6)
+const SF2 = input("Slow Factor", 5)
+const QQE2 = input("Fast QQE2 Factor", 1.61)
+const threshold2 = input("Threshold", 3)
+
+header("Bollinger")
+const length = input("Bollinger Length", 50, minval=1)
+const mult = input("BB Multiplier", 0.35, minval=0.001, maxval = 5, step=0.1)
+
+header("Style")
+const col_up = input("", #a438f5)
+const col_down = input("", #fd9602)
+
+seq src = close
+const Wilders_Period = rsi_len * 2 - 1
+
+//-- Logic
+
+// RSI
+func rsi_f(x:seq, y) {
+    seq uc = max(x - x[1], 0) // upward change
+    seq dc = max(x[1] - x, 0) // downward change
+    var rs = rma(uc, y) / rma(dc, y)
+    var res = 100 - 100 / (1 + rs)
+    return res
+}
+
+// QQE 2
+seq rsi = rsi_f(src, rsi_len)
+seq rsi_ma = ema(rsi, SF)
+seq atr_rsi = abs(rsi_ma[1] - rsi_ma)
+seq atr_rsi_ma = ema(atr_rsi, Wilders_Period)
+var dar = ema(atr_rsi_ma, Wilders_Period)
+
+seq longband = 0.0, shortband = 0.0, trend = 0.0
+
+var delta_fast_atr_rsi = dar
+seq RSIndex = rsi_ma
+
+var newshortband = RSIndex + delta_fast_atr_rsi
+var newlongband = RSIndex - delta_fast_atr_rsi
+
+longband = RSIndex[1] > longband[1] and RSIndex > longband[1] ? max(longband[1], newlongband) : newlongband
+shortband = RSIndex[1] < shortband[1] and RSIndex < shortband[1] ? min(shortband[1], newshortband) : newshortband
+
+seq lb = longband[1], sb = shortband[1]
+var cross_1 = cross(lb, RSIndex)
+trend = cross(RSIndex, sb) ? 1 : cross_1 ? -1 : nz(trend[1], 1)
+seq fast_atr_rsi_tl = trend == 1 ? longband : shortband
+
+// Bollinger
+seq fast_atr_rsi_tl_sub = fast_atr_rsi_tl - 50
+const basis = sma(fast_atr_rsi_tl_sub, length)
+const dev = mult * stdev(fast_atr_rsi_tl_sub, length)
+const upper = basis + dev, lower = basis - dev
+const color_bar = rsi_ma - 50 > upper ? col_up : rsi_ma - 50 < lower ? col_down : color.gray
+
+// Zero cross
+seq QQEzlong = 0
+QQEzlong = nz(QQEzlong[1])
+seq QQEzshort = 0
+QQEzshort = nz(QQEzshort[1])
+QQEzlong = RSIndex >= 50 ? QQEzlong + 1 : 0
+QQEzshort = RSIndex < 50 ? QQEzshort + 1 : 0
+
+plot(0, color = color.white, showprice=false)
+
+// QQE 2
+
+seq src2 = close
+const Wilders_Period2 = rsi_len2 * 2 - 1
+
+seq rsi2 = rsi_f(src2, rsi_len2)
+seq rsi_ma2 = ema(rsi2, SF2)
+seq atr_rsi2 = abs(rsi_ma2[1] - rsi_ma2)
+seq atr_rsi_ma2 = ema(atr_rsi2, Wilders_Period2)
+var dar2 = ema(atr_rsi_ma2, Wilders_Period2)
+
+seq longband2 = 0.0, shortband2 = 0.0, trend2 = 0.0
+
+var delta_fast_atr_rsi2 = dar2
+seq RSIndex2 = rsi_ma2
+
+var newshortband2 = RSIndex2 + delta_fast_atr_rsi2
+var newlongband2 = RSIndex2 - delta_fast_atr_rsi2
+
+longband2 = RSIndex2[1] > longband2[1] and RSIndex2 > longband2[1] ? max(longband2[1], newlongband2) : newlongband2
+shortband2 = RSIndex2[1] < shortband2[1] and RSIndex2 < shortband2[1] ? min(shortband2[1], newshortband2) : newshortband
+
+seq lb2 = longband2[1], sb2 = shortband2[1]
+var cross_2 = cross(lb2, RSIndex2)
+trend2 = cross(RSIndex2, sb2) ? 1 : cross_2 ? - 1 : nz(trend2[1], 1)
+seq fast_atr_rsi_tl2 = trend2 == 1 ? longband2 : shortband2
+
+// Zero cross
+seq QQE2zlong = 0
+QQE2zlong = nz(QQEzlong[1])
+seq QQE2zshort = 0
+QQE2zshort = nz(QQEzshort[1])
+QQE2zlong = RSIndex >= 50 ? QQEzlong + 1 : 0
+QQE2zshort = RSIndex < 50 ? QQEzshort + 1 : 0
+
+const hcolor2 = rsi_ma2 - 50 > threshold2 ? color.silver : rsi_ma2 - 50 < 0 - threshold2 ? color.silver : na
+
+histogram(rsi_ma2 - 50, color=hcolor2, transp=50, showprice=false)
+
+const greenbar1 = rsi_ma2 - 50 > threshold2
+const greenbar2 = rsi_ma - 50 > upper
+
+const redbar1 = rsi_ma2 - 50 < 0 - threshold2
+const redbar2 = rsi_ma - 50 < lower
+
+histogram(greenbar1 && greenbar2 ? rsi_ma2 - 50 : na, color=col_up, transp=0, showprice=false)
+histogram(redbar1 && redbar2 ? rsi_ma2 - 50 : na, color=col_down, transp=0, showprice=false)
+plot(fast_atr_rsi_tl2 - 50, color=color.white, linewidth=2, showprice=false)
+
+
+
+//@version=1
+study("Ichimoku Cloud Classic", overlay=true)
+
+var conversionLineColor = input("Conversion Line Color (Kijun)", #0496ff)
+
+var baseLineColor = input("BaseLine Color (Tenken)", #f55142)
+
+var laggingSpanColor = input("Lagging Span Color (Chiku)", #bdbdbd)
+
+var LeadLine1Color = input("LeadLine1 Color (Senkou A)", #57c42b)
+var LeadLine2Color = input("LeadLine2 Color (Senkou B)", #c4452b)
+
+var conversionPeriods = input("Conversion Line Periods", 9)
+var basePeriods = input("Base Line Periods", 26)
+var laggingSpan2Periods = input("Lagging Span 2 Periods", 52)
+var displacement = input("Displacement", 26)
+
+var dp=displacement-1
+func donchian(len) {
+    var a1 = lowest(low, len)
+    var a2 = highest(high, len)
+    return (a1 + a2)/2
+}
+
+var conversionLine = donchian(conversionPeriods)
+var baseLine = donchian(basePeriods)
+var leadLine1 = (conversionLine + baseLine)/2
+var leadLine2 = donchian(laggingSpan2Periods)
+
+plot(conversionLine, color=conversionLineColor, linewidth=2)
+plot(baseLine, color=baseLineColor, linewidth=2)
+plot(close, offset = -26, color=laggingSpanColor)
+
+plot(leadLine1, offset = 26, color=LeadLine1Color, linewidth=1)
+plot(leadLine2, offset = 26, color=LeadLine2Color, linewidth=1)
+fill(leadLine1, leadLine2, color = leadLine1 > leadLine2 ? LeadLine1Color : LeadLine2Color, offset=26, transp=80)
+
+
+//@version=1
+// InSilico Hull Suite ported from Pine
+study("Hull Suite", overlay=true)
+
+//----Input
+seq src = close
+const mode = input("Hull Variation", "HMA", options=['HMA', 'THMA', 'EHMA'])
+const length = input("Length (180-200 for floating S/R, 55 for swing entry)", 55)
+const lengthMult = input("Length multiplier (Used to view higher timeframes)", 1.0)
+
+const switchColor = input("Color Hull according to trend?", true)
+const candleCol = input("Color background based on Hull's Trend?", false)
+const visualSwitch = input("Show as a band?", true)
+
+const col_up = input("Buys", #64ffda)
+const col_down = input("Sells", #f44336)
+
+//----Functions
+// Pine WMA
+func wma(x:seq, y) {
+  var norm = 0.0
+  var s = 0.0
+  for (i=0;i<y-1;i++) {
+    var weight = (y-i) * y
+    norm += weight
+    s += x[i] * weight
+  }
+  return s / norm
+}
+
+// HMA
+func HMA(_src:seq, _length) {
+  seq x = 2 * wma(_src, _length/2) - wma(_src, _length)
+  return wma(x, round(sqrt(_length)))
+}
+// EHMA
+func EHMA(_src:seq, _length) {
+  seq y = 2 * ema(_src, _length/2) - ema(_src, _length)
+  return ema(y, round(sqrt(_length)))
+}
+// THMA
+func THMA(_src:seq, _length) {
+  seq z = wma(_src, _length/3) * 3 - wma(_src, _length/2) - wma(_src, _length)
+  return wma(z, _length)
+}
+
+seq HULL = 0
+const hull_len = trunc(length * lengthMult)
+switch(mode) {
+  case 'HMA':
+    HULL = HMA(src, hull_len)
+    break
+  case 'EHMA':
+    HULL = EHMA(src, hull_len)
+    break
+  case 'THMA':
+    HULL = THMA(src, hull_len/2)
+    break
+  default:
+    HULL = na
+    break
+}
+
+var MHULL = HULL[0]
+var SHULL = HULL[2]
+
+//----Plots
+
+// Color
+const hullColor = switchColor ? (HULL > HULL[2] ? col_up : col_down) : #ff9800
+
+var Fi1 = plot(MHULL, color=hullColor, linewidth=2, transp=50, showprice=false)
+var Fi2 = plot(visualSwitch ? SHULL : na, color=hullColor, linewidth=2, transp=50, showprice=false)
+
+fill(Fi1, Fi2, color=hullColor, transp=30)
+var bg = candleCol ? (switchColor ? hullColor : na) : na
+bgcolor(candleCol ? (switchColor ? hullColor : na) : na, transp=80)
+
+
+
+//@version=1
+study("Cumulative Delta/Volume percentage by victoryvt", overlay=false)
+seq delta=100*(vbuy-vsell)/(vbuy+vsell)
+seq cum_delta_percentage = cum(delta)
+plot(cum_delta_percentage,color=color.white)
+
+
+//@version=1
+study("Cumulative Delta/Volume percentage by victoryvt", overlay=false)
+seq delta=100*(vbuy-vsell)/(vbuy+vsell)
+seq cum_delta_percentage = cum(delta)
+plot(cum_delta_percentage,color=color.white)
+
+
+//@version=1
+study("Cumulative Delta/Volume percentage by victoryvt", overlay=false)
+seq delta=100*(vbuy-vsell)/(vbuy+vsell)
+seq cum_delta_percentage = cum(delta)
+plot(cum_delta_percentage,color=color.white)
+
+
+//@version=1
+study("COIC")
+const roc = input("☑ - Rate of Change, □ - Change",true)
+const dataSrc = input("type", '1.Standard', options=['1.Standard','2.Session','3.Anchored','4.Period based normalized'])
+
+seq src = 1
+switch(dataSrc){
+  case '1.Standard':
+     src = 1
+     break
+  case '2.Session':
+     src = 2
+     break
+  case '3.Anchored':
+     src = 3
+     break
+  case '4.Period based normalized':
+     src = 4
+     break
+}
+
+const c = input("Candle mode",true)
+seq d = roc?(oi_close-oi_close[1])/oi_close[1]:oi_close-oi_close[1]
+
+header("")
+const l = input("Line mode",true)
+var bc = input("Line Color",color.white)
+const oibased = input("Estimated Taker's Positions based Color[PERP]",false)
+const cpc = input("Consider Price Change",false)
+var a = input("Length", 21)
+var nl = input("Long Build-Up", #2196F3FF)
+var ns = input("Short Build-Up", #FF0000FF)
+var sc = input("Short Covering", #004C88FF)
+var lc = input("Long Unwinding", #710700ff)
+seq oid = oi_close-oi_close[a]
+seq vd_ = vbuy-vsell
+seq svd = sum(vd_,a)
+seq pd = close-close[a]
+var nl_ = cpc? oid>0  and svd>0 and pd>0 : oid>0  and svd>0 
+var ns_ = cpc? oid>0  and svd<0 and pd<0 : oid>0  and svd<0
+var sc_ = cpc? oid<0  and svd>0 and pd>0 : oid<0  and svd>0
+var lc_ = cpc? oid<0  and svd<0 and pd<0 : oid<0  and svd<0
+seq color = nl_ ? nl : ns_ ?ns:sc_?sc:lc_?lc:bc
+seq col = oibased ? color:bc
+//1.Standard
+seq cd = cum(d)
+plot(src==1&l?cd:na,linewidth=2,color=col)
+plotcandle(src==1&c?cd[1]:na,src==1&c?cd:na,src==1&c?cd:na,src==1&c?cd:na)
+//
+header("2.Session")
+const dataSrc2 = input("Timeframe", 'D', options=['1m','3m','5m','15m','30m','1h','2h','4h','6h','8h','12h','D','2D','3D','4D','5D','6D','7D','W','M'])
+
+seq src2 = 1
+switch(dataSrc2){
+  case '1m':
+     src2 = 1/96/15
+     break
+  case '3m':
+     src2 = 1/96/5
+     break
+  case '5m':
+     src2 = 1/298
+     break
+  case '15m':
+     src2 = 1/96
+     break
+  case '30m':
+     src2 = 1/48
+     break
+  case '1h':
+     src2 = 1/24
+     break
+  case '2h':
+     src2 = 1/12
+     break
+  case '4h':
+     src2 = 1/6
+     break
+  case '6h':
+     src2 = 1/4
+     break
+  case '8h':
+     src2 = 1/3
+     break
+  case '12h':
+     src2 = 1/2
+     break
+  case 'D':
+     src2 = 1
+     break
+  case '2D':
+     src2 = 2
+     break
+  case '3D':
+     src2 = 3
+     break
+  case '4D':
+     src2 = 4
+     break
+  case '5D':
+     src2 = 5
+     break
+  case '6D':
+     src2 = 6
+     break
+  case '7D':
+     src2 = 7
+     break
+  case 'W':
+     src2 = 8
+     break
+  case 'M':
+     src2 = 9
+     break
+  case 'Y':
+     src2 = 10 
+     break
+}
+const dataTimezone = input("TimeZone", 'UTC', options=['UTC','(UTC-10) Honolulu','(UTC-8) Juneau','(UTC-7) Los Angeles','(UTC-7) Phoenix','(UTC-6) Denver'
+                                                     ,'・・・'])
+seq tz = 0
+switch(dataTimezone){
+  case 'UTC':
+     tz = 0
+     break
+  case '(UTC-10) Honolulu':
+     tz = -10
+     break
+  case '(UTC-8) Juneau':
+     tz = -8
+     break
+  case '(UTC-7) Los Angeles':
+     tz = -7
+     break
+  case '(UTC-7) Vancouver':
+     tz = -7
+     break
+  case '(UTC-7) Phoenix':
+     tz = -7
+     break
+  case '(UTC-6) Denver':
+     tz = -6
+     break
+}
+const show_do=input("Show session open",true)
+seq day = floor((time/1000-1576022400+3600*tz)/86400/src2)
+var prevday = day[1]
+seq dow = dayofweek(time)
+seq dom = dayofmonth(time)
+seq doy = dayofyear(time)
+
+var newday =  src2==8 ? (dow[1]>dow ) : src2==9? (dom[1]>dom+20) : src ==10? (doy[1]>doy+360) :(prevday != day)
+global cdelta = 0
+cdelta = (newday==false)?  barstate.isrealtime ? cdelta : cdelta + d : d
+seq cdel = cdelta
+// Daily open
+bgcolor(src==2& newday & show_do ? #FFFFFF70 : na )
+
+plot(src==2&l?barstate.isrealtime?cdel[1]+d:cdelta:na, linewidth=2,color=col)
+plotcandle((src==2&c)? barstate.isrealtime?cdel[1]:cdel[1]:na, src==2&c?barstate.isrealtime ? max(cdelta+d,cdelta) : cdel:na, src==2&c?barstate.isrealtime ? min(cdelta,cdelta+d) : cdel:na, src==2&c?barstate.isrealtime ? cdelta+d: cdel :na)
+
+//
+header('3.Anchored')
+const dataSrc3 = input("Anchored calculation", 'Date', options=['Lookback in Bars','Lookback in Days','Date'])
+seq anc = 2
+switch(dataSrc3){
+  case 'Lookback in Bars':
+    anc = 0
+     break
+  case 'Lookback in Days':
+    anc = 1
+     break
+  case 'Date':
+     anc = 2
+     break
+}
+var lbb = input('Lookback in (Bars)',200)
+var lb = input('Lookback in (Days)',1)
+seq bars = 8.64e7 * timeframe/1440 *(lbb+1)
+seq bars_ = 8.64e7 * timeframe/1440 *(lbb)
+seq days = 8.64e7 * lb 
+seq t1 = timenow() - time
+seq cond1 = anc==0?t1<=bars: anc==1 ? t1 < days :na
+global dlb = 0
+if(cond1){
+  dlb = dlb+d
+} else if (cond1==false){
+  dlb = na
+}
+seq acvdlb=cond1?dlb:na
+plot(src==3&anc!=2&l?barstate.isrealtime?acvdlb[1]+d:acvdlb:na, linewidth=2,color=col)
+plotcandle(src==3&anc!=2&c?barstate.isrealtime?acvdlb[1]:acvdlb-d:na, src==3&anc!=2&c?barstate.isrealtime ? acvdlb[1]:acvdlb:na,src==3&anc!=2&c?barstate.isrealtime?acvdlb[1]:acvdlb:na,src==3&anc!=2&c?barstate.isrealtime?acvdlb[1]+d:acvdlb:na)
+//
+var yy= input("Year",2022)
+var mm= input("Month",5)
+var da = input("Day",12)
+var h = input("Hour",0)
+var m = input("Minute",0)
+seq ts = timestamp(yy,mm,da,h,m,0)
+seq t = time
+seq cond = t >= ts
+global acdelta = 0
+if(cond){
+  acdelta = acdelta+d
+} else if (cond==false){
+  acdelta = 0
+}
+seq acvd=cond?acdelta:na
+plot(src==3&anc==2&l?barstate.isrealtime?acvd[1]+d:acvd:na, linewidth=2,color=col)
+plotcandle(src==3&anc==2&c?barstate.isrealtime?acvd[1]:acvd-d:na, src==3&anc==2&c?barstate.isrealtime ? acvd[1]:acvd:na,src==3&anc==2&c?barstate.isrealtime?acvd[1]:acvd:na,src==3&anc==2&c?barstate.isrealtime?acvd[1]+d:acvd:na)
+const show_anc = input("Show Anchor Location",true)
+bgcolor(src==3&anc==0&show_anc&t1<=bars&t1>=bars_? #FFFFFF70 : na )
+bgcolor(src==3&anc==1&show_anc&t1>(8.64e7 * (lb-timeframe/1440))&t1<days? #FFFFFF70 : na )
+bgcolor(src==3&anc==2&show_anc&time[1]<ts&time>=ts? #FFFFFF70 : na )
+//
+header('4.Period based normalized')
+const dataSrc4 = input("Timeframe", 'D', options=['Custom Period','15m','30m','1h','2h','4h','6h','8h','12h','D','2D','3D','4D','5D','6D','7D','30D'])
+
+seq src4 = 1
+switch(dataSrc4){
+  case 'Custom Period':
+     src4 = 0
+     break
+  case '15m':
+     src4 = 1/96*1440/timeframe
+     break
+  case '30m':
+     src4 = 1/48*1440/timeframe
+     break
+  case '1h':
+     src4 = 1/24*1440/timeframe
+     break
+  case '2h':
+     src4 = 1/12*1440/timeframe
+     break
+  case '4h':
+     src4 = 1/6*1440/timeframe
+     break
+  case '6h':
+     src4 = 1/4*1440/timeframe
+     break
+  case '8h':
+     src4 = 1/3*1440/timeframe
+     break
+  case '12h':
+     src4 = 1/2*1440/timeframe
+     break
+  case 'D':
+     src4 = 1*1440/timeframe
+     break
+  case '2D':
+     src4 = 2*1440/timeframe
+     break
+  case '3D':
+     src4 = 3*1440/timeframe
+     break
+  case '4D':
+     src4 = 4*1440/timeframe
+     break
+  case '5D':
+     src4 = 5*1440/timeframe
+     break
+  case '6D':
+     src4 = 6*1440/timeframe
+     break
+  case '7D':
+     src4 = 7*1440/timeframe
+     break
+  case '30D':
+     src4 = 30*1440/timeframe
+     break
+}
+var custom = input("Custom Period",300)
+seq c_period = src4 == 0 ? custom : src4
+seq vol_ma = sma(d, c_period)
+seq d_norm = d - vol_ma
+seq cd_norm = cum(d_norm)
+plot(src==4&l?cd_norm:na,linewidth=2,color=col)
+plotcandle(src==4&c?cd_norm[1]:na,src==4&c?cd_norm:na,src==4&c?cd_norm:na,src==4&c?cd_norm:na)
+
+
+
+
+
+//@version=1
+study("Taker Buy Sell Volume Ratio")
+header("Config")
+const dataMode = input("mode", 'Line', options=['Line','Candle'])
+seq mode = 1
+switch(dataMode){
+  case 'Line':
+     mode=1
+     break
+  case 'Candle':
+     mode=2
+     break
+}
+//
+const dataType = input("type", 'Taker Buy Sell Ratio', options=['Taker Buy Ratio','Taker Sell Ratio','Taker Buy Sell Ratio'])
+seq type = 3
+switch(dataType){
+  case 'Taker Buy Ratio':
+     type=1
+     break
+  case 'Taker Sell Ratio':
+     type=2
+     break
+  case 'Taker Buy Sell Ratio':
+     type=3
+     break
+}
+//
+const dataMAtype = input("MA type", 'SMA', options=['SMA','EMA','RMA','WMA','HMA','EHMA','THMA'])
+seq MAtype = 1
+switch(dataMAtype){
+  case 'SMA':
+     MAtype = 1
+     break
+  case 'EMA':
+     MAtype = 2
+     break
+  case 'RMA':
+     MAtype = 3
+     break
+  case 'WMA':
+     MAtype = 4
+     break
+  case 'HMA':
+     MAtype = 5
+     break
+  case 'EHMA':
+     MAtype = 6
+     break
+  case 'THMA':
+     MAtype = 7
+     break
+}
+//
+func wma(source:seq,len:var){
+  var l = len - 1
+  var l2 = len
+  var wtsum = 0
+  var wtdsum = 0.0
+     for(i=0;i<l;i++){
+       wtdsum = wtdsum + source[i] * l2 
+       wtsum = wtsum + l2 
+       l2 = l2 - 1
+     }
+  seq wma_ = wtdsum / wtsum
+  return wma_
+}
+//
+func hma(source:seq,len:var){
+  var a1 = wma(source,len)
+  var len2 = round(len/2)
+  var a2 = wma(source,len2)
+  var len3 = round(sqrt(len))
+  seq a3 = 2 * a2 -a1
+  seq hma_ = wma(a3,len3)
+  return hma_
+}
+//
+func ehma(source:seq,len:var){
+  var ea1 = ema(source,len)
+  var elen2 = round(len/2)
+  var ea2 = ema(source,elen2)
+  var elen3 = round(sqrt(len))
+  seq ea3 = 2 * ea2 - ea1
+  seq ehma_ = ema(ea3,elen3)
+  return ehma_
+}
+//
+func thma(source:seq,len:var){
+  var tlen2 = round(len/2)
+  var tlen3 = round(len/3)
+  var ta1 = wma(source,len)
+  var ta2 = wma(source,tlen2)
+  var ta3 = wma(source,tlen3)
+  seq ta4 = ta3 * 3 - ta2 -ta1
+  seq thma_ = wma(ta4,len)
+  return thma_
+}
+//
+header("",'MA length')
+const dataTimeframe = input("Timeframe", 'Custom Period', options=['Chart','1m','3m','5m','15m','30m','1h','2h','4h','6h','8h','12h','D','2D','3D','4D','5D','6D','7D','14D','30D','50D','100D','Full','Custom Period'])
+
+seq tf = 1
+switch(dataTimeframe){
+  case 'Custom Period':
+     tf = 0
+     break
+  case 'Chart':
+     tf = 1
+     break
+  case '1m':
+     tf = 1/timeframe
+     break
+  case '3m':
+     tf = 3/timeframe
+     break
+  case '5m':
+     tf = 5/timeframe
+     break
+  case '15m':
+     tf = 15/timeframe
+     break
+  case '30m':
+     tf = 30/timeframe
+     break
+  case '1h':
+     tf = 60/timeframe
+     break
+  case '2h':
+     tf = 120/timeframe
+     break
+  case '4h':
+     tf = 240/timeframe
+     break
+  case '6h':
+     tf = 360/timeframe
+     break
+  case '8h':
+     tf = 480/timeframe
+     break
+  case '12h':
+     tf = 720/timeframe
+     break
+  case 'D':
+     tf = 1440/timeframe
+     break
+  case '2D':
+     tf = 2*1440/timeframe
+     break
+  case '3D':
+     tf = 3*1440/timeframe
+     break
+  case '4D':
+     tf = 4*1440/timeframe
+     break
+  case '5D':
+     tf = 5*1440/timeframe
+     break
+  case '6D':
+     tf = 6*1440/timeframe
+     break
+  case '7D':
+     tf = 7*1440/timeframe
+     break
+  case '14D':
+     tf = 14*1440/timeframe
+     break
+  case '30D':
+     tf = 30*1440/timeframe
+     break
+  case '50D':
+     tf = 50*1440/timeframe
+     break
+  case '100D':
+     tf = 100*1440/timeframe
+     break
+  case 'Full':
+     tf = bar_index
+     break
+}
+const custom = input("Custom Period",100)
+seq len = tf==0?custom:tf
+
+header("Color")
+const color_base = input("Color",color.gray)
+const colorchange = input("", 'Auto', options=['Auto','Custom'])
+seq cc = 1
+switch(colorchange){
+  case 'Auto':
+     cc=1
+     break
+  case 'Custom':
+     cc=2
+     break
+}
+
+header("")
+const 
+  level_above=input("Above.[Custom]",1.1),
+  color_above=input("", #2196F3FF),
+  level_below=input("Below.[Custom]",0.9),
+  color_below=input("", #FF0000FF)
+
+seq level_auto = type==1?0.5:type==2?0.5:type==3?1.0:na
+//
+seq v = vbuy+vsell
+seq r = type==1?vbuy/v:type==2?vsell/v:type==3?vbuy:na
+
+seq ratio = 
+  type==1&MAtype==1?sma(r,len):type==1&MAtype==2?ema(r,len):type==1&MAtype==3?rma(r,len):type==1&MAtype==4?wma(r,len):type==1&MAtype==5?hma(r,len):type==1&MAtype==6?ehma(r,len):type==1&MAtype==7?thma(r,len):
+  type==2&MAtype==1?sma(r,len):type==2&MAtype==2?ema(r,len):type==2&MAtype==3?rma(r,len):type==2&MAtype==4?wma(r,len):type==2&MAtype==5?hma(r,len):type==2&MAtype==6?ehma(r,len):type==2&MAtype==7?thma(r,len):
+  type==3&MAtype==1?sma(r,len)/sma(vsell,len):type==3&MAtype==2?ema(r,len)/ema(vsell,len):type==3&MAtype==3?rma(r,len)/rma(vsell,len):type==3&MAtype==4?wma(r,len)/wma(vsell,len):type==3&MAtype==5?hma(r,len)/hma(vsell,len):type==3&MAtype==6?ehma(r,len)/ehma(vsell,len):type==3&MAtype==7?thma(r,len)/thma(vsell,len):na
+
+
+seq color = color_base
+if(cc==1&ratio>level_auto){color=color_above}
+else if(cc==1&ratio<level_auto){color=color_below}
+else if(cc==2&ratio>level_above){color=color_above}
+else if(cc==2&ratio<level_below){color=color_below}
+
+plot(mode==1?bar_index>=len?ratio:na:na, linewidth=2, color=color)
+plotcandle(mode==2?bar_index>=len?ratio[1]:na:na,
+           mode==2?bar_index>=len?ratio:na:na,
+           mode==2?bar_index>=len?ratio:na:na,
+           mode==2?bar_index>=len?ratio:na:na)
+
+//@version=1 //by SMG
+study("Delta Dominance HL", overlay=true)
+const dataCANDLE = input("Candle type", 'Candle like', options=['None','Candle','Candle like','HL Candle'])
+seq p = 1
+switch(dataCANDLE){
+  case 'None':
+     p = 0
+     break
+  case 'Candle':
+     p = 1
+     break
+  case 'Candle like':
+     p = 2
+     break
+  case 'HL Candle':
+     p = 3
+     break
+}
+const show_price = input("Show Plice line",false)
+
+//
+seq vol = vbuy + vsell
+seq ir = vbuy>vsell?vbuy/vol*100:vsell/vol*100
+header("Color")
+const vir =input("Volume Imbalance Ratio(%)", 60, maxval=100,minval=50,step=0.1)
+header("")
+const 
+  color_buy = input("Buy", color.lime),
+  color_sell = input("Sell", color.magenta),
+  color_neutral = input("Neutral", #808080CC)
+
+var color = color_neutral
+if (ir>vir) {
+  if (vbuy>vsell) {
+      color = color_buy
+    } 
+  else color = color_sell}
+else { color = color_neutral }
+
+//
+plotcandle(p==1?open:na,p==1?high:na,p==1?low:na,p==1?close:na, color=color,showprice=false)
+histogram(p==2?close-open:na, open, color=color,showprice=false)
+histogram(p==2?high-low:na, low ,color=color,transp=40,showprice=false)
+histogram(p==3?high-low:na, p==3?low:na ,color=color,transp=0,showprice=false)
+
+plot(show_price?close:na, color=color) 
+
+//@version=1
+
+study("Turnover rate")
+const dataSrc = input("Timeframe", 'D', options=['Custom Period','15m','30m','1h','2h','4h','6h','8h','12h','D','2D','3D','4D','5D','6D','7D','30D','Full Range'])
+
+seq src = 1440/timeframe
+switch(dataSrc){
+  case 'Custom Period':
+     src = 0
+     break
+  case '15m':
+     src = 1/96*1440/timeframe
+     break
+  case '30m':
+     src = 1/48*1440/timeframe
+     break
+  case '1h':
+     src = 1/24*1440/timeframe
+     break
+  case '2h':
+     src = 1/12*1440/timeframe
+     break
+  case '4h':
+     src = 1/6*1440/timeframe
+     break
+  case '6h':
+     src = 1/4*1440/timeframe
+     break
+  case '8h':
+     src = 1/3*1440/timeframe
+     break
+  case '12h':
+     src = 1/2*1440/timeframe
+     break
+  case 'D':
+     src = 1*1440/timeframe
+     break
+  case '2D':
+     src = 2*1440/timeframe
+     break
+  case '3D':
+     src = 3*1440/timeframe
+     break
+  case '4D':
+     src = 4*1440/timeframe
+     break
+  case '5D':
+     src = 5*1440/timeframe
+     break
+  case '6D':
+     src = 6*1440/timeframe
+     break
+  case '7D':
+     src = 7*1440/timeframe
+     break
+  case '30D':
+     src = 30*1440/timeframe
+     break
+  case 'Full Range':
+     src = bar_index
+     break
+}
+var custom = input("Custom Period",300)
+seq length = src==0?custom:src
+
+seq v = vbuy + vsell
+seq vol = sum(v,length)
+
+seq turnover = vol/oi_close
+
+header("")
+var color = input("", #00FF80)
+//
+plot(bar_index>src?turnover:na, color=color,linewidth=2)
+
+
+//@version=1
+study("Bar3 Long /Bar5 Short /Delta /Volume", overlay=true)
+
+var showBar3Arrows = input("Show Bar 3 Arrows", true)
+var showBar5Arrows = input("Show Bar 5 Arrows", true)
+var showDeltaArrows = input("Show Delta Arrows", true)
+var showVolumeArrows = input("Show Volume Arrows", true)
+var showCombinedArrows = input("Show Combined Arrows", true)
+
+// Group 1: Volume Threshold 1 with colors for BUY
+header("Bar 3 Short/Long")
+var volumeThreshold13 = input("Long R 3%", 5, maxval=30)
+var arrowColorUp13 = input("Arrow Color Up 1", #1AE61AFF)
+
+// Group 2: Volume Threshold 2 with colors for SELL
+
+var volumeThreshold23 = input("Short R 3%", 0.62, maxval=2)
+var arrowColorDown23 = input("Arrow Color Down 2", #CC483E83)
+
+seq bid3 = bid_sum(3)
+seq ask3 = ask_sum(3)
+seq cumulativeVolume3 = (bid3)/(ask3)
+
+// Определение направления стрелки на основе cumulativeVolume
+seq arrowUp3 = cumulativeVolume3 > 1
+seq arrowDown3 = cumulativeVolume3 < 1
+
+// Определение цвета стрелки на основе пороговых значений и cumulativeVolume
+seq arrowColor3 = na
+if (arrowUp3 and cumulativeVolume3 > volumeThreshold13)
+    arrowColor3 = arrowColorUp13
+if (arrowDown3 and cumulativeVolume3 < volumeThreshold23)  // Учитываем, что cumulativeVolume отрицательное
+    arrowColor3 = arrowColorDown23
+
+// Построение стрелки
+seq shape3 = na
+if (arrowUp3 and cumulativeVolume3 > volumeThreshold13)
+    shape3 = high * (1 - 0.1)  // Изменено на high
+if (arrowDown3 and cumulativeVolume3 < volumeThreshold23)
+    shape3 = low * (1 + 0.1)   // Изменено на low
+plotshape(showBar3Arrows and shape3, arrowUp3 ? shape.up_open : shape.down_open, color=arrowColor3, 25)
+
+///////////////////////BAR5
+// Group 1: Volume Threshold 1 with colors for BUY
+header("Bar 5 Short/Long")
+var volumeThreshold15 = input("Bar 5 Long", 2.5, maxval=30)
+var arrowColorUp15 = input("Arrow Color Up 1", #1B742FFF)
+
+// Group 2: Volume Threshold 2 with colors for SELL
+
+var volumeThreshold25 = input("Bar 5 Short", 0.65, maxval=2)
+var arrowColorDown25 = input("Arrow Color Down 2", #ED2A1BFF)
+
+seq bid5 = bid_sum(5)
+seq ask5 = ask_sum(5)
+seq cumulativeVolume5 = (bid5)/(ask5)
+
+// Определение направления стрелки на основе cumulativeVolume
+seq arrowUp5 = cumulativeVolume5 > 1
+seq arrowDown5 = cumulativeVolume5 < 1
+
+// Определение цвета стрелки на основе пороговых значений и cumulativeVolume
+seq arrowColor5 = na
+if (arrowUp5 and cumulativeVolume5 > volumeThreshold15)
+    arrowColor5 = arrowColorUp15
+if (arrowDown5 and cumulativeVolume5 < volumeThreshold25)  // Учитываем, что cumulativeVolume отрицательное
+    arrowColor5 = arrowColorDown25
+
+// Построение стрелки
+seq shape5 = na
+if (arrowUp5 and cumulativeVolume5 > volumeThreshold15)
+    shape5 = high * (1 - 0.09)  // Изменено на high
+if (arrowDown5 and cumulativeVolume5 < volumeThreshold25)
+    shape5 = low * (1 + 0.09)   // Изменено на low
+
+plotshape(showBar5Arrows and shape5, arrowUp5 ? shape.up_open : shape.down_open, color=arrowColor5, 25)
+
+//DELTA 
+
+// Group 1: Volume Threshold 1 with colors for BUY
+header("Delta Short/Long")
+var volumeThreshold1D = input("Delta Short", 900)
+var arrowColorUp1D = input("Arrow Color Up 1", #FF000071)
+
+// Group 2: Volume Threshold 2 with colors for SELL
+
+var volumeThreshold2D = input("Delta Long", -1000)
+var arrowColorDown2D = input("Arrow Color Down 2", #FFEB3B82)
+
+seq cumulativeVolumeD = vbuy - vsell
+
+// Определение направления стрелки на основе cumulativeVolume
+seq arrowUpD = cumulativeVolumeD > 0
+seq arrowDownD = cumulativeVolumeD < 0
+
+// Определение цвета стрелки на основе пороговых значений и cumulativeVolume
+seq arrowColorD = na
+if (arrowUpD and cumulativeVolumeD > volumeThreshold1D)
+    arrowColorD = arrowColorUp1D
+if (arrowDownD and cumulativeVolumeD < volumeThreshold2D)  // Учитываем, что cumulativeVolume отрицательное
+    arrowColorD = arrowColorDown2D
+
+// Построение стрелки
+seq shapeD = na
+if (arrowUpD and cumulativeVolumeD > volumeThreshold1D)
+    shapeD = high * (1 + 0.015)  // Изменено на high
+if (arrowDownD and cumulativeVolumeD < volumeThreshold2D)
+    shapeD = low * (1 - 0.015)   // Изменено на low
+plotshape(showDeltaArrows and shapeD, arrowUpD ? shape.down_bold : shape.up_bold, color=arrowColorD, 45)
+
+//VOLUME 
+
+// Group 1: Volume Threshold 1 with colors
+header("Volume 1 ")
+var volumeThreshold1 = input("Volume 1", 7000)
+var arrowColorUp1 = input("Arrow Color Up 1", color.red) // Dark Green
+var arrowColorDown1 = input("Arrow Color Down 1", color.green) // Dark Red
+
+// Group 2: Volume Threshold 2 with colors
+header("Volume 2")
+var volumeThreshold2 = input("Volume 2", 10000)
+var arrowColorUp2 = input("Arrow Color Up 2", #FFEB3BFF) // Green
+var arrowColorDown2 = input("Arrow Color Down 2", #FFEB3BFF) // Brown
+
+// Group 3: Volume Threshold 3 with colors
+header("Volume 3")
+var volumeThreshold3 = input("Volume 3", 30000)
+var arrowColorUp3 = input("Arrow Color Up 3", #FF8700FF) // Sea Green
+var arrowColorDown3 = input("Arrow Color Down 3", #FF8700FF) // Indian Red
+
+// Group 4: Volume Threshold 4 with colors
+header("Volume 4")
+var volumeThreshold4 = input("Volume 4", 40000)
+var arrowColorUp4 = input("Arrow Color Up 4", #2196F3FF) // Lime Green
+var arrowColorDown4 = input("Arrow Color Down 4", #2196F3FF) // Firebrick
+
+// Group 5: Volume Threshold 5 with colors
+header("Volume 5")
+var volumeThreshold5 = input("Volume 5", 50000)
+var arrowColorUp5 = input("Arrow Color Up 5", #693EB4FF) // Bright Green
+var arrowColorDown5 = input("Arrow Color Down 5", #693EB4FF) // Red
+
+seq cumulativeVolume = vbuy + vsell
+seq bull = close > open
+seq bear = close < open
+
+// Define arrow color based on volume
+seq arrowColor = na
+if (cumulativeVolume > volumeThreshold1)
+    arrowColor = bull ? arrowColorUp1 : arrowColorDown1
+if (cumulativeVolume > volumeThreshold2)
+    arrowColor = bull ? arrowColorUp2 : arrowColorDown2
+if (cumulativeVolume > volumeThreshold3)
+    arrowColor = bull ? arrowColorUp3 : arrowColorDown3
+if (cumulativeVolume > volumeThreshold4)
+    arrowColor = bull ? arrowColorUp4 : arrowColorDown4
+if (cumulativeVolume > volumeThreshold5)
+    arrowColor = bull ? arrowColorUp5 : arrowColorDown5
+
+// Plotting the arrow
+seq shape = na
+if (cumulativeVolume > volumeThreshold1)
+    shape = bull ? high * (1 + 0.05) : low * (1 - 0.05)
+plotshape(showVolumeArrows and shape, bull ? shape.down_bold : shape.up_bold, color=arrowColor, 30)
+
+seq allArrowsUp = !na(shape3) and arrowUp3 and !na(shape5) and arrowUp5 and !na(shapeD) and arrowDownD and !na(shape) and shape
+seq allArrowsDown = !na(shape3) and arrowDown3 and !na(shape5) and arrowDown5 and !na(shapeD) and arrowUpD and !na(shape) and shape
+
+// Determine the position and style of the combined arrow
+seq combinedShapePosition = allArrowsUp ? high * (1 - 0.06) : allArrowsDown ? low * (1 + 0.06) : na
+seq combinedShapeStyle = allArrowsUp ? shape.up_thin : allArrowsDown ? shape.down_thin : na
+
+// Plotting the combined arrow
+plotshape(showCombinedArrows and combinedShapePosition, combinedShapeStyle, color=allArrowsUp ? #1EB31EFF : #ED2A1BFF, 47)
+
+
+
+//@version=1
+study("Bid and Ask Value Estimation")
+
+const interval_step = input("Depth Interval Step (%)", 0.2, minval=0.1, maxval=5)
+const max_depth = input("Max Depth (%)", 5, minval=1, maxval=100)
+const interval_count = max_depth / interval_step
+const emaBA = input("Ema", 12)
+var emaOn = input("Ema", 'Вкл', options=['Вкл', 'Выкл'])
+seq cumulative_bid_value = 0.0
+seq cumulative_ask_value = 0.0
+
+seq src = 1
+switch(emaOn){
+  case 'Вкл':
+     src = 1
+     break
+  case 'Выкл':
+     src = 0
+     break
+}
+
+for(i=1; i<=interval_count; i++) {
+    var current_depth = i * interval_step
+    var previous_depth = (i-1) * interval_step
+    
+    var bid_sum_at_depth = bid_sum(current_depth) - bid_sum(previous_depth)  // Получаем сумму бидов для текущего интервала глубины
+    var ask_sum_at_depth = ask_sum(current_depth) - ask_sum(previous_depth)  // Получаем сумму асков для текущего интервала глубины
+    
+    var bid_price = close * (1 - current_depth/100.0)
+    var ask_price = close * (1 + current_depth/100.0)
+    
+    cumulative_bid_value += bid_sum_at_depth * bid_price
+    cumulative_ask_value += ask_sum_at_depth * ask_price
+}
+
+// Выводим результаты на графике
+seq cumB = sma(cumulative_bid_value, emaBA)
+seq cumA = sma(cumulative_ask_value, emaBA)
+
+//plot(cumulative_bid_value, color=color.green, title="Cumulative Bid Value")
+//plot(cumulative_ask_value, color=#FF0000, title="Cumulative Ask Value")
+
+plot(src ?  cumB : cumulative_bid_value, color=color.green, title="Cumulative Bid Value")
+plot(src ? cumA : cumulative_ask_value, color=#FF0000, title="Cumulative Ask Value")
+

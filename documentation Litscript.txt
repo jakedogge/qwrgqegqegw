@@ -1,0 +1,1201 @@
+LitScript Manual (v1) - TradingLite
+10–12 минут
+Before You Start
+Intro
+
+The idea of LitScript is to be as close to PineScript, we want to make the experience of switching from one to another as effortless as possible. It's intended to be a resource for people who already have some familiarity with PineScript or any other basic programming languages.
+💡
+
+If you wish to help us improve these docs, then please reach us out on Discord.
+Version 1
+
+At this moment by default LitScript uses an old version, and these docs are aimed for version=1
+
+Please write //@version=1 in front of every script you make.
+Quickstart Script
+
+Same quickstart script as PineScript.
+
+//@version=1
+study("My Script")
+var fast = 12, slow = input("Slow", 26)
+var fastMA = ema(close, fast)
+var slowMA = ema(close, slow)
+seq macd = fastMA - slowMA
+var signal = sma(macd, 9)
+plot(macd, color=color.blue)
+plotshape(signal, shape.up, 10, color=color.yellow)
+
+Basics
+Main Functions
+
+Function that you'll be using the most is study() which is mandatory for any script.
+
+Afterwards input() in order to able to change script settings on the fly without editing the script itself.
+Built-in function limitations
+
+Currently the way functions receive their properties is a mix between named and unnamed values.
+
+For instance, you can write input("test", 123) but you can't write input(title="test", value=123) but as for most optional arguments, this is is different.
+
+(e.g you can write input("test", 123, min=0) but not input("test", 123, 0) because LitScript doesn't know what that last 0 refers to.)
+How to Plot on Chart
+
+Plotting something on the chart is fairly straightforward:
+
+You can find various other plot drawing functions here such as histogram, shapes, fill, and more.
+Language Basics
+Differences & Limitations
+
+LitScript is still in experimental phase, issues may arise and syntax could change in the future.
+
+    Syntax is very close to JavaScript, so scopes and curly braces are necessary
+
+    Conditional Statements, Iterators, Loops require scopes and are javascript-like
+
+    Input functions have slightly different parameters
+
+    Plot functions have slightly different parameters
+
+    Array/Matrix plot support
+
+    Functions are still experimental
+
+    Built-in function list is not complete yet, so please tell us if there's anything missing.
+
+    We have various new data sources
+
+Variable Definitions
+Simple variable definition
+
+You can define a variable using the keyword var in front of your variables.
+Series/Sequence definition
+
+You can define a series variable, although we call them sequences in LitScript.
+⚠
+
+RULE OF THUMB: If you don't know if you need to use this, just simply use var unless compiler complains
+
+This sequence can be access it by writing series (which is equivalent to series[0]) or series[1] if you want to lookup previous value.
+Global variable definition
+
+You can define a variable that persists between bars, this allows for a more advanced algorithms.
+
+//@version=1
+global total_counter=0, realtime=0
+
+if (barstate.isnew) total_counter++
+plot(total_counter,color=#AF0)
+
+if (barstate.isrealtime) realtime++
+plotshape(total_counter, shape.circle, realtime)
+
+Multiple definitions on a single line
+
+Multiple definitions can be stacked on one line using a comma
+
+seq seriesA = open, seriesB = close, something = 99
+var test = 10, something = 20
+
+Constants
+
+Constants are values that are defined once and can no longer be redefined afterwards.
+Self-referencing values
+
+In order to self reference you need to first define then set it to something.
+
+seq test = 0
+test = test + 1
+
+NaN / na
+
+NaN (Not A Number) values are supported, written as na
+Conditional Statements
+
+if else statements
+
+if (condition1) {
+} else if (condition2) {
+} else { }
+
+Scopes are optional for single line statements. e.g.
+
+if (test==2) test=1
+else test=2
+
+Shorthand conditional expressions
+
+You can use ternary conditional operators
+
+var test = condition ? true : false
+
+you can also use iff() function
+
+var test = iff(condition,true,false)
+
+Iterators & Loops
+
+It is pretty close to JavaScript, with some minor differences and restrictions:
+🔧
+
+Loops are limited to 1000 iterations for your own safety.
+for()
+
+for(i=0;i<10;i++) { // simple loop to 10
+    /* code */ 
+}
+
+for(j=1;j>0;j-=0.05) { // reverse loop with fractions
+    /* code */ 
+}  
+
+while()
+
+while(condition) { 
+    /* code */ 
+}
+
+switch()
+
+switch(somevariable){ // switch statements !
+    case 0:
+        /* code */
+        break
+    case 1:
+    case 2:
+        /* code */
+        break
+    default:
+        /* code */
+        break
+}
+
+Function Declarations
+
+Explicit variable type definition for functions
+
+    ⚠ Functions are still experimental, so bugs may arise
+
+    ⚠ Defining series variables INSIDE a function might not work as expected
+
+Single line functions
+Multi-line functions
+Function type declaration issues
+💡
+
+Note that if you're passing a series variable, you have to use :seq as shown in the following example
+Operators
+
+Operators
+	
+
+Alternative
+	
+
+Description
+
+or
+	
+
+||
+	
+
+Or
+
+and
+	
+
+&&
+	
+
+And
+
+==
+	
+
+none
+	
+
+Equal to
+
+!=
+	
+
+none
+	
+
+Not equal to
+
++ - * /
+	
+
++= -= *= /=
+	
+
+Simple arithmetic operators
+
+++ --
+	
+
+none
+	
+
+Increase / decrease value by one
+
+% | ~ ^
+	
+
+none
+	
+
+Various other advanced operators (similar to JavaScript)
+Available Data
+Price
+
+Returns candle values (timeseries), values are affected by heiken ashi when enabled
+
+The following averages are also available:
+
+Basic Example
+
+//@version=1
+study("Price Candles", overlay=false)
+plotcandle(open, high, low, close) // candle plots
+
+Volume
+
+Returns volume buy/sell values (timeseries)
+
+Basic Example
+
+//@version=1
+study("Volume", overlay=false)
+var v = (vbuy + vsell)
+histogram(v, color = close<open ? color.red : color.green)
+
+Volume Delta Example
+
+//@version=1
+study("Volume Delta", overlay=false)
+var vd = (vbuy - vsell)
+histogram(vd, color = vd<0 ? color.red : color.green)
+
+CVD (Cumulative Volume Delta) Example
+
+//@version=1
+study("CVD (Cumulative Volume Delta)")
+seq vd = vbuy-vsell
+var cvd = cum(vd)
+plot(cvd, color=#00ff00)
+
+Bids & Asks
+Bid/Ask Sum
+
+Returns a sum of bid/ask values
+
+The range depends on the heatmap definition ( SD or HD heatmap )
+
+    SD heatmap max range is 220% of the closing price
+
+    HD heatmap max range is 120% of the closing price
+
+//@version=1
+study("[example] Bid/Ask Sum")
+plot(bid_sum(),color=#AF0)
+plot(ask_sum(),color=#F30)
+
+Bid/Ask Sum Range (Percent)
+
+Returns a sum of bid/ask sum of a specific range
+( ⚠ This feature is experimental and slow )
+
+    range — Range in %, (e.g. bid_sum(120) 120% range of its current closing price)
+
+//@version=1
+study("[example] Bid/Ask Sum 15% Range")
+plot(bid_sum(15),color=#AF0)
+plot(ask_sum(15),color=#F30)
+
+Bid/Ask Sum Absolute Range
+
+Returns a sum of bid/ask sum of a specific price range
+⚠
+
+This feature is experimental, slightly faster than percent equivalent
+
+    price_min — Min value
+
+    price_max — Max value
+
+//@version=1
+study("[example] Bid/Ask Sum Absolute range (4000 from current price)")
+plot(ask_sum(0,close+4000),color=#AF0)
+plot(bid_sum(close-4000,0),color=#F30)
+
+Bid/Ask Sum Example
+
+//@version=1
+study("Bid/Ask Range Sum Bands")
+
+const divide = input("Divide by", 7)
+plots[10] asks, bids
+
+for (i=1;i<=10;i++) append(asks,ask_sum((i*i)/divide), darken(#FFAA00,i*10))
+for (i=1;i<=10;i++) append(bids,-bid_sum((i*i)/divide), darken(#AAFFAA,i*10))
+
+plot(asks)
+plot(bids)
+
+plot(ask_sum())
+plot(-bid_sum())
+
+plot(0, color=#333) // middle line
+
+Bid/Ask Highest Size Price
+
+Returns price where the bid/ask is at its highest size
+
+//@version=1
+study("[example] Bid/Ask Highest Size Price")
+plot(ask_highest(),color=#F30)
+plot(bid_highest(),color=#AF0)
+
+Bid/Ask Spread Price
+
+Returns price where cumulative bid/ask size starting from current price reaches the specified total threshold size
+
+    size — Total threshold size
+
+//@version=1
+study("[example] Bid/Ask Spread")
+plot(ask_spread(100000),color=#F30)
+plot(bid_spread(100000),color=#AF0)
+
+Open Interest
+
+Returns open interest candle values (timeseries)
+🔥
+
+Open Interest only available to subscribers.
+
+Open Interest is also available as a built-in layer so you don't have to code one.
+
+oi_open, oi_high, oi_low, oi_close
+
+The following averages are also available:
+
+oi_ohlc4, oi_hlc3, oi_hl2
+
+Example:
+
+//@version=1
+study("Open Interest in LitScript", overlay=false)
+plotcandle(oi_open, oi_high, oi_low, oi_close)
+
+Liquidations
+
+Returns ask or bid liquidations (timeseries)
+🔥
+
+Liquidations only available to subscribers.
+Funding and Mark Price
+
+Returns funding, funding_predicted or mark_price (timeseries)
+🔥
+
+Funding only available to subscribers.
+
+funding, funding_predicted, mark_price
+
+Array/Matrix Plots
+
+Array/matrix plots are special kind of plots, helps avoid writing unnecessary bloat in your code.
+
+In order to use them, you have to define an array, use append, then use plot to draw them.
+🔧
+
+Max array limit is 64 plots
+
+Examples:
+
+//@version=1
+plots[2] array// size is a positive value, represents the amount of charts to create
+append(array, open, #FF00FF) // fill the first chart's array data
+append(array, close, #FF00FF) // fill the first chart's array data
+plot(array) //plot the 
+
+//@version=1
+study("array overlaid example", overlay=true)
+plots[32] levelsA // array allows us to generate 32 charts easily
+plots[10] levelsB
+
+// simple for loop
+for (i=0;i<32;i++) {
+  append(levelsA, sma(open,i*2)+i*20, lighten(#509,i*5))  // append is how we fill the data for arrays plots
+}
+
+for (i=0;i<100;i+=10) { // step by 10
+  append(levelsB, sma(open,i*2)-i*20, darken(#B09,i*2))
+}
+
+plot(levelsA)
+plot(levelsB)
+
+Colors
+Color Basics
+Color definition
+
+Colors can be defined using 3 character hexadecimal notation (e.g. #F0b), 6 characters (e.g. #FF00BB) or using builtin static color names (e.g. color.magenta)
+Color Alpha
+
+You can now also use alpha inside colors, using 4 character hexadecimal (e.g. #F0BA ) or 8 characters (e.g. #FF00BBAA ) where the last two letters represent the alpha value.
+List of static colors
+
+All built-in colors should start with color. e.g. color.blue
+
+black, white, red, orange, lime, blue, yellow, cyan, magenta, silver, gray, maroon, olive, green, purple, teal, navy
+
+Color blending
+Color functions
+
+brightness(color, amount) // adjusts color's brightness by a value ( 0-255 )
+darken(color, amount) // alias to brightness(color, -amount)
+lighten(color, amount) // alias to brightness(color, amount)
+blend(colorA, colorB, amount) //  blends between two colors by amount ( 0.0-1.0 )
+
+Example:
+
+//@version=1
+study("MyScript")
+var mycolor = blend(#f00,#0f0,(open-open[1])/10)
+plot(open, linewidth=10, color=mycolor)
+
+
+FUNCTIONS / SCRIPT
+study
+
+Study properties / general script settings.
+string title Layer title boolean overlay Overlay it on the last existing pane (true) or new pane (false) (optional) (default=false)
+Examples:
+1
+study("My Script")
+1
+study("my script title", overlay=true)
+input
+
+User-defined options.
+string title Input label any value Default value float min Minimum value (optional) float max Maximum value (optional) float step Step value (optional) array options an array of possible options (e.g. ['a','b']) (optional)
+Examples:
+1
+2
+3
+4
+5
+6
+//@version=1
+const myValue = input("My Label", 123)
+const myBoolean = input("True/False option", false)
+const myColor = input("My Color", color.green)
+const mySlider = input("A Slider", 1, minval=0, maxval=100, step=5)
+const myOption = input("My Option", 'b', options=['a','b','c'])
+header
+
+Just like input(), adds a title and descriptions inside user-defined options
+string title Title string description Description (optional)
+Examples:
+1
+header("section")
+1
+header("cool settings", "optional description")
+
+FUNCTIONS / PLOT
+plot
+
+Plots a series of data on the chart in the form of a line.
+float value Accepts value or an array/matrix variable color color Color value (optional) float linewidth Line width (optional) float offset Offset in bars (optional) boolean stepline Step line style (optional) (default=false) boolean autoscale Should price axis autoscale based on this plot? (optional) (default=true) boolean showprice Show last visible value on price axis (optional) (default=true)
+Examples:
+1
+plot(series, color=#FFF)
+plotcandle
+
+Plots candle bars on the chart.
+float open Open value float high High value float low Low value float close Close value color color Color value boolean autoscale Should price axis autoscale based on this plot? (optional) (default=true) boolean showprice Show last visible value on price axis (optional) (default=true)
+Examples:
+1
+plotcandle(open,high,low,close)
+1
+plotcandle(open,high,low,close, color = #FFF)
+histogram
+
+Plots a series of data on the chart in the form of a histogram.
+float value Bar size float base Value offset (optional) (default=0) color color Color value (optional) percent transp Transparency (optional) float width Bar width normalized (e.g. 1 is full bar width, 0.5 is half size, 0.8 is default candle width ) (optional) float offset Offset in bars (optional) boolean autoscale Should price axis autoscale based on this plot? (optional) (default=true) boolean showprice Show last visible value on price axis (optional) (default=true)
+Examples:
+1
+histogram(price, color=#af5, transp=50)
+1
+histogram((close-close[1]), close)
+plotshape
+
+Plots visual shapes on the chart. List of all available shapes.
+float value Value shape shape Shape ( check out the [shape list](#List_of_shapes_for_plotshape)) float size Size in pixels color color Color value (optional) percent transp Transparency (optional) float offset Offset in bars (optional) boolean autoscale Should price axis autoscale based on this plot? (optional) (default=true)
+Examples:
+1
+plotshape(price, shape.icon, size, color=#af5)
+fill
+
+Fills background between two plots.
+float value Value float value2 Value color color Color value (optional) percent transp Transparency (optional) float offset Offset in bars (optional) boolean autoscale Should price axis autoscale based on this plot? (optional) (default=false)
+Examples:
+1
+fill(price1, price2, color=#af5, transp=50)
+bgcolor
+
+Fill background with specified color.
+color color Color value percent transp Transparency (optional) float offset Offset in bars (optional)
+Examples:
+1
+bgcolor(open > close ? #af5 : na, transp=50)
+
+
+FUNCTIONS / SERIES
+lowest
+
+Lowest value ( for a given number of candles back )
+sequence series integer range
+highest
+
+Highest value ( for a given number of candles back )
+sequence series integer range
+sum
+
+Sum all values ( for a given number of candles back )
+sequence series integer range
+sma
+
+Simple moving average ( for a given number of candles back )
+sequence series integer range
+ema
+
+Exponential moving average ( for a given number of candles back )
+sequence series integer range
+stdev
+
+Standard deviation ( for a given number of candles back )
+sequence series integer range
+mom
+
+Momentum ( for a given number of candles back )
+sequence series integer range
+rma
+
+Rolling moving average series function
+sequence series integer alpha
+cross
+
+Return true if crossover(a,b) or crossunder(a,b)
+sequence a sequence b
+crossover
+
+Return true if a[1]<b[1] and a>=b
+sequence a sequence b
+crossunder
+
+Return true if a[1]>b[1] and a<=b
+sequence a sequence b
+lowestbars
+
+Lowest candle offset for a given number of bars back ( for a given number of candles back )
+sequence series integer range
+highestbars
+
+Highest candle offset for a given number of bars back ( for a given number of candles back )
+sequence series integer range
+cum
+
+Cumulative value ( like sum but for whole range )
+sequence series
+
+
+FUNCTIONS / DATA
+ask_sum
+
+Returns a sum of ask values
+If no arguments are provided, it will sum full range
+integer min Percent or Min Range (optional) integer max Max Range (optional)
+Examples:
+1
+ask_sum()
+1
+ask_sum(15)
+1
+ask_sum(4500,4800)
+bid_sum
+
+Returns a sum of bid values
+If no arguments are provided, it will sum full range
+integer min Percent or Min Range (optional) integer max Max Range (optional)
+Examples:
+1
+bid_sum()
+1
+bid_sum(15)
+1
+bid_sum(4500,4800)
+ask_highest
+
+Returns price where the ask is at its highest size
+bid_highest
+
+Returns price where the bid is at its highest size
+ask_spread
+
+Returns price where cumulative ask size starting from current price reaches the specified total threshold size
+integer min Total threshold size
+Examples:
+1
+ask_spread(100000)
+bid_spread
+
+Returns price where cumulative bid size starting from current price reaches the specified total threshold size
+integer min Total threshold size
+Examples:
+1
+bid_spread(100000)
+
+FUNCTIONS / MATH
+min
+
+Returns smallest value of all arguments passed
+
+Arguments: (value1, value2, value3, ...)
+max
+
+Returns highest value of all arguments passed
+
+Arguments: (value1, value2, value3, ...)
+isfinite
+
+Returns false if value is Infinity or NaN
+float value
+sqrt
+
+Returns squareroot of value
+float value
+abs
+
+Returns absolute value
+float value
+ceil
+
+Returns round number up
+float value
+floor
+
+Returns round number down
+float value
+round
+
+Returns rounds number 
+float value
+trunc
+
+Returns the integer part of a number by removing any fractional
+float value
+exp
+
+Returns Euler's number power of value
+float value
+sign
+
+Returns 1 if value is positive, -1 if negative, 0 if it's 0
+float value
+sin
+
+Returns sinus
+float value
+cos
+
+Returns cosinus
+float value
+tan
+
+Returns tangent
+float value
+asin
+
+Returns arcsine (in radians)
+float value
+acos
+
+Returns arccosine (in radians)
+float value
+atan
+
+Returns arctangent (in radians)
+float value
+log
+
+Returns the base-e logarithm of value
+float value
+log2
+
+Returns the base-2 logarithm of value
+float value
+log10
+
+Returns  the base-10 logarithm of value
+float value
+pow
+
+Returns value power of pow
+float value float pow
+radians
+
+Transforms degrees into radians
+float value Degrees
+degrees
+
+Transforms radians into degrees
+float value Radians
+normalize
+
+Transforms value from min/max range to normalized value (0.0-1.0)
+float value float min float max
+denormalize
+
+Transforms normalized value (0.0-1.0) to min/max range
+float value Normalized value (0.0-1.0) float min float max
+lerp
+
+Same as denormalize(1-amount, start, end)
+float start float end float amount
+clamp
+
+Clamps/restricts value to min and max
+float value float min float max
+saturate
+
+Same as clamp(value, 0, 1)
+float value
+maplinear
+
+Map a value from a range to another range
+float value float fromStart float fromEnd float toStart float toEnd
+wrap
+
+Wraps value to min/max range
+float value float min float max
+step
+
+Arguments: (a, value)
+fmod
+
+Arguments: (a, b)
+smoothstep
+
+Arguments: (value, min, max)
+
+FUNCTIONS / TIME
+timenow
+
+Current unix timestamp
+timestamp
+
+Transform UTC date into unix timestamp
+integer year integer month (optional) (default=0) integer day (optional) (default=0) integer hour (optional) (default=0) integer min (optional) (default=0) integer second (optional) (default=0)
+dayofweek
+
+Unix timestamp to day of the week ( 0 - 6 )
+time time
+dayofmonth
+
+Unix timestamp to day of the month ( 0 - 365 )
+time time
+dayofyear
+
+Unix timestamp to day of the year ( 1 - 365 )
+time time
+
+FUNCTIONS / BASIC
+isnan
+
+Returns true if value is NaN
+float value
+iff
+
+Returns one value if true, otherwise second value
+boolean condition float true float false
+na
+
+Same as isnan() checks for NaN value
+float value
+nz
+
+Returns secondVal if value is NaN otherwise it returns the value itself
+
+Arguments: (value, secondVal = 0)
+
+FUNCTIONS / COLOR
+brightness
+
+Adjusts color's brightness by a value ( 0-255 )
+color color byte amount
+darken
+
+Alias to brightness(color, -amount)
+color color byte amount
+lighten
+
+Alias to brightness(color, amount)
+color color byte amount
+blend
+
+Blends between two colors by amount ( 0.0-1.0 )
+color colorA color colorB float amount
+
+VARIABLES / DATA
+data
+bar_index
+Returns current bar index, where 0 is equal to first loaded historical bar
+time
+Returns unix timestamp (timeseries)
+timeframe
+Returns current timeframe in minutes (e.g. 1min = 1, 1h = 60, 12h = 720, D = 1440, ...)
+open
+Open
+high
+High
+low
+Low
+close
+Close
+ohlc4
+(Open + High + Low + Close)/4
+hlc3
+(High + Low + Close)/3
+hl2
+(High + Low)/2
+vbuy
+Volume buy
+vsell
+Volume sell
+oi_open
+Open Interest Open
+oi_high
+Open Interest High
+oi_low
+Open Interest Low
+oi_close
+Open Interest Close
+oi_ohlc4
+Open Interest (Open + High + Low + Close)/4
+oi_hlc3
+Open Interest (High + Low + Close)/3
+oi_hl2
+Open Interest (High + Low)/2
+liq_ask
+Ask Liquidations
+liq_bid
+Bid Liquidations
+funding
+Funding (Current)
+funding_predicted
+Funding (Predicted)
+mark_price
+Mark Price
+dayofweek
+dayofweek.sunday
+Value for Sunday, used with dayofweek(time) function
+dayofweek.monday
+Value for Monday, used with dayofweek(time) function
+dayofweek.tuesday
+Value for Tuesday, used with dayofweek(time) function
+dayofweek.wednesday
+Value for Wednesday, used with dayofweek(time) function
+dayofweek.thursday
+Value for Thursday, used with dayofweek(time) function
+dayofweek.friday
+Value for Friday, used with dayofweek(time) function
+dayofweek.saturday
+Value for Saturday, used with dayofweek(time) function
+barstate
+barstate.isfirst
+Returns true if current index is first loaded bar
+barstate.islast
+Returns true if current index is latest bar
+barstate.ishistory
+Returns true if current index is not latest bar
+barstate.isnew
+Returns true if current index is being calculated
+barstate.isrealtime
+Returns true if current index is being updated with new data
+color
+color.black
+Color for #000000
+color.white
+Color for #FFFFFF
+color.red
+Color for #FF0000
+color.orange
+Color for #FFA500
+color.lime
+Color for #00FF00
+color.blue
+Color for #0000FF
+color.yellow
+Color for #FFFF00
+color.cyan
+Color for #00FFFF
+color.magenta
+Color for #FF00FF
+color.silver
+Color for #C0C0C0
+color.gray
+Color for #808080
+color.maroon
+Color for #800000
+color.olive
+Color for #808000
+color.green
+Color for #008000
+color.purple
+Color for #800080
+color.teal
+Color for #008080
+color.navy
+Color for #000080
+shape
+shape.adjust
+Shape
+shape.air
+Shape
+shape.alert
+Shape
+shape.arrow_combo
+Shape
+shape.attach
+Shape
+shape.attention
+Shape
+shape.battery
+Shape
+shape.bell
+Shape
+shape.block
+Shape
+shape.bookmark
+Shape
+shape.bookmarks
+Shape
+shape.bullseye
+Shape
+shape.camera
+Shape
+shape.cancel_circled
+Shape
+shape.cancel_squared
+Shape
+shape.cancel
+Shape
+shape.cd
+Shape
+shape.chart_area
+Shape
+shape.chart_bar
+Shape
+shape.chart_pie
+Shape
+shape.check
+Shape
+shape.circle_empty
+Shape
+shape.circle_thin
+Shape
+shape.circle
+Shape
+shape.clock
+Shape
+shape.cloud_thunder
+Shape
+shape.cloud
+Shape
+shape.cog
+Shape
+shape.database
+Shape
+shape.dot_circled
+Shape
+shape.down_bold
+Shape
+shape.down_circled
+Shape
+shape.down_dir
+Shape
+shape.down_open_big
+Shape
+shape.down_open
+Shape
+shape.down_thin
+Shape
+shape.down
+Shape
+shape.droplet
+Shape
+shape.erase
+Shape
+shape.eye
+Shape
+shape.fast_backward
+Shape
+shape.fast_forward
+Shape
+shape.feather
+Shape
+shape.flag
+Shape
+shape.flash
+Shape
+shape.gauge
+Shape
+shape.heart_empty
+Shape
+shape.heart
+Shape
+shape.help_circled
+Shape
+shape.help
+Shape
+shape.info_circled
+Shape
+shape.info
+Shape
+shape.key
+Shape
+shape.lamp
+Shape
+shape.left_bold
+Shape
+shape.left_circled
+Shape
+shape.left_dir
+Shape
+shape.left_open_big
+Shape
+shape.left_open
+Shape
+shape.left_thin
+Shape
+shape.left
+Shape
+shape.light_down
+Shape
+shape.light_up
+Shape
+shape.link
+Shape
+shape.location
+Shape
+shape.lock_open
+Shape
+shape.lock
+Shape
+shape.magnet
+Shape
+shape.minus_circled
+Shape
+shape.minus_squared
+Shape
+shape.minus
+Shape
+shape.moon
+Shape
+shape.music
+Shape
+shape.note_beamed
+Shape
+shape.note
+Shape
+shape.pause
+Shape
+shape.play
+Shape
+shape.plus_circled
+Shape
+shape.plus_squared
+Shape
+shape.plus
+Shape
+shape.progress_0
+Shape
+shape.progress_1
+Shape
+shape.progress_2
+Shape
+shape.progress_3
+Shape
+shape.quote
+Shape
+shape.record
+Shape
+shape.right_bold
+Shape
+shape.right_circled
+Shape
+shape.right_dir
+Shape
+shape.right_open_big
+Shape
+shape.right_open
+Shape
+shape.right_thin
+Shape
+shape.right
+Shape
+shape.rocket
+Shape
+shape.rss
+Shape
+shape.search
+Shape
+shape.signal
+Shape
+shape.star_empty
+Shape
+shape.star
+Shape
+shape.stop
+Shape
+shape.tag
+Shape
+shape.target
+Shape
+shape.thermometer
+Shape
+shape.thumbs_down
+Shape
+shape.thumbs_up
+Shape
+shape.to_end
+Shape
+shape.to_start
+Shape
+shape.traffic_cone
+Shape
+shape.trophy
+Shape
+shape.up_bold
+Shape
+shape.up_circled
+Shape
+shape.up_dir
+Shape
+shape.up_open_big
+Shape
+shape.up_open
+Shape
+shape.up_thin
+Shape
+shape.up
+Shape
+shape.water
+Shape
